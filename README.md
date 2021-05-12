@@ -8,3 +8,5 @@ The github link is here: https://github.com/GameEngineering/EP01_SandSim
 The purpose of this final project was to create a 2D particle sim with a dynamic lighting system and particles. Since many of the simpler particles were implemented in the boilerplate, 
 we added 2 new complex particles to the system as well as some raytracing aspects to give the scene proper lighting. This allowed us to showcase course material relating to 
 raytracing and the physical simulation lectures. 
+
+Details on implementation can be found on the final deliverables website. 
