@@ -53,6 +53,19 @@
             Some lessons learned for this situation: we feel that doing something like Kenny’s project from the previous year might have been better (and less sophisticated) than the approach we did. We really wanted to emulate some of what Noita did and have a cool sandbox-style 2D particle simulator. And while we did have some incredible starting code to get us started and created some meaningful effects in our project time frame, the overall range of what we could have accomplished with this code (without just completely rewriting everything from scratch), is not as high as it could have been with a more focused project. All in all, this project was enjoyable and well conceptualized, and we feel like there is much potential to explore this sandbox style project to do more interesting graphics renders. 
         </p>
         
+        <h2>Lighting</h2>
+        
+        <p>
+            For this project we implemented 2D ray tracing support for point light sources.  These light sources included a main light source that you can control with your keyboard as well as minor light sources in the form of fire pixels.  The code for this part was based largely on the principles of importance sampling that we implemented in project three.  Basically, while working in a 2D pixel grid we wanted to model pixels either being directly in light or shaded by other objects.  Because there is no camera to speak of in this 2D world, direct illumination could be modeled without the need for a BRDF.  Instead, we handled the material differences between various particles by simply changing their transparency.  As we were working out bugs in the code, we came across an interesting way to simulate the appearance of depth and included it as a togglable effect.  Finally, we ran into issues of aliasing when moving our light source near the edge of an object, but implemented some blurring to limit these artifacts.  Now that we have touched on all of the lighting effects present in this project, we will go into more detail about how each of them was implemented.
+        </p>
+        <br>
+        <p>
+            To get the main light source to work, we emulated what was done in project three.  We started off by adding a global variable that kept track of a point light at (X, Y), the location of which can be changed using the arrow keys.   Then, for each point in the grid, we traced a line back to the light source and tallied up the number of intersections with non-empty pixels.  If there were no intersections, then that pixel displays the particle’s true color.  If there were intersections then we model darkness by displaying the true color divided by a factor proportional to the number of intersections.  The reason that we don’t just have binary shadow or light like we do for project three is because in a 2D grid, it is not a very good visual if only the outer pixel layer of an object is illuminated.  Having an element of light penetration lets us better see the objects in the world, and additionally we can represent materials by changing how much light penetrates different particles.  When tracing the light path, we counted intersections with sand, stone, oil and other opaque materials as full intersections.  But when we intersected water, steam, smoke and other somewhat translucent particles we only added in fractions of an intersection to the running total.  Deciding how much of an intersection to count for each particle type was simply an aesthetic choice.  
+        </p>
+        <br>
+        <p>
+            One of the biggest challenges for this implementation of ray tracing was figuring out how to create a straight line in a pixelated world space.  In project three we could resort to the basic equations of a line in order to determine intersections, but here we had to come up with some heuristic for checking an appropriate number of grid cells.  The approach is tedious and confusing to explain in text, but it is clearly shown in the graphic below.
+        </p>
         <div align="center">
             <table style="width=100%">
                 <tr>
@@ -65,6 +78,17 @@
                 
             </table>
         </div>
+        
+        <p>
+            After getting this base lighting figure out, we then looked at how we could add in fire particles as their own light sources.  The initial thought was to trace rays to every fire particle to see how much illumination we have at a certain spot.  However, there are so many fire particles generated at a time that tracing rays to every one of them would be very slow. So instead we added each fire particle to an array of minor light sources, uniformly sampled 1 / 800 of them, and just checked illumination from those.  We calculated the intersections along the ray’s path in the same way that we did for the main light source, but we limited the maximum possible illumination and also added in a distance factor that reduced the illuminance the further the particle is from the fire.  
+        </p>
+        <br>
+        <p>
+            We also noticed that if we locked in the displayed color of the pixels once they stopped moving, we could get an interesting depth effect.  By not being put in shade by particles added on top, it appears as though they are in the foreground.  This was done by allocating space in the heap for a new texture buffer and saving the values when R is pressed.  After this, the program will only update the running texture buffer for pixels that were empty in the saved buffer.  Only limitation is that the foreground pixels will not be affected if we move the light source to the other side of the screen, which makes the effect look a little less realistic.
+        </p>
+        <br>
+        
+        
         <h1>
             Results
         </h1>
@@ -84,6 +108,17 @@
                     <td align="middle">
                     <img src="epic_thing.gif" width="480px" />
                         <figcaption align="middle">Lighting Demonstration with 3D Effects</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="aliasing.png" width="480px" />
+                    <figcaption align="middle"> Lighting: Aliasing
+</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="antialiasing.png" width="480px" />
+                        <figcaption align="middle">Lighting: Anti-aliasing</figcaption>
                 </tr>
               
 
