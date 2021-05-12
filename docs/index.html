@@ -87,6 +87,10 @@
             We also noticed that if we locked in the displayed color of the pixels once they stopped moving, we could get an interesting depth effect.  By not being put in shade by particles added on top, it appears as though they are in the foreground.  This was done by allocating space in the heap for a new texture buffer and saving the values when R is pressed.  After this, the program will only update the running texture buffer for pixels that were empty in the saved buffer.  Only limitation is that the foreground pixels will not be affected if we move the light source to the other side of the screen, which makes the effect look a little less realistic.
         </p>
         <br>
+        <p>
+            Finally, we noticed some errors that occurred when we moved the light source close to the edge of an object in the scene.  Specifically, we saw alternating bands of light and dark in areas that should have been completely shaded.  This was similar to jaggies, and certainly the effect of aliasing.  Basically, the way we are calculating our pseudo-line causes us to sometimes miss the object in  the way and sometimes hit it.  Ideally, we would have a smaller pixel grid so that we could get a more accurate line or implement super sampling, but our grid size was fixed.  So instead, we added some blurring mechanisms to reduce this aliasing effect.  The first thing we did was increase the width of our pseudo-line.  The other measure we took was as we traced the ray, we took the average intersection of surrounding pixels to calculate the intersection at a point.   With all of this we were not able to completely get rid of the aliasing, but we were able to see much improved results.  
+        </p>
+        <br>
         
         
         <h1>
@@ -187,7 +191,7 @@
         
         <h1>Contributions</h1>
         <p>
-            Matthew: 
+            Matthew: Came up with and developed the code to add 2D lighting to particle sim. Also, developed an ingenius hueristic to resemeble ray tracing within a pixel space.
         </p>
         <br>
         <p>
